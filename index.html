@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>вулентинка</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Летающие сердечки */
+    .heart {
+      position: absolute;
+      color: rgba(255, 75, 114, 0.6);
+      font-size: 20px;
+      user-select: none;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(105vh) scale(0.5) rotate(0deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-10vh) scale(1.3) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes floatDown {
+      0% {
+        transform: translateY(-10vh) scale(0.5) rotate(0deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(105vh) scale(1.3) rotate(-360deg);
+        opacity: 0;
+      }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      position: relative;
+      z-index: 10;
+      backdrop-filter: blur(5px);
+    }
+
+    h1 {
+      color: #ff4b72;
+      font-size: 24px;
+      margin-bottom: 30px;
+      line-height: 1.4;
+    }
+
+    .btn-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      min-height: 60px;
+      position: relative;
+    }
+
+    .no-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    button {
+      padding: 12px 28px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .btn-yes {
+      background-color: #ff4b72;
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 75, 114, 0.4);
+    }
+
+    .btn-yes:hover {
+      background-color: #e03a5f;
+      transform: scale(1.05);
+    }
+
+    .btn-no {
+      background-color: #a0a0a0;
+      color: white;
+      position: relative;
+      transition: all 0.15s ease-out;
+    }
+
+    
+    .no-hint {
+      position: absolute;
+      top: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff4b72;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      z-index: 20;
+    }
+
+    .no-hint.show {
+      opacity: 1;
+    }
+
+    .final-message {
+      font-size: 22px;
+      color: #ff4b72;
+      font-weight: bold;
+      animation: popIn 0.5s ease-out forwards;
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1 id="question">Ты меня любишь?</h1>
+    <div class="btn-container" id="button-area">
+      <button class="btn-yes" id="yesBtn">Да</button>
+      <div class="no-wrapper" id="noWrapper">
+        <button class="btn-no" id="noBtn">Нет</button>
+        <div class="no-hint" id="noHint"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questionEl = document.getElementById('question');
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const noWrapper = document.getElementById('noWrapper');
+    const noHint = document.getElementById('noHint');
+    const buttonArea = document.getElementById('button-area');
+
+    let stage = 1;
+    let noClickCount = 0;
+
+    
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+      
+      const heartsList = ['❤️', '💖', '💕', '💗', '💓', '✨'];
+      heart.innerText = heartsList[Math.floor(Math.random() * heartsList.length)];
+      
+      const startX = Math.random() * 100;
+      heart.style.left = startX + 'vw';
+      
+      const size = Math.random() * 18 + 14;
+      heart.style.fontSize = size + 'px';
+
+      const duration = Math.random() * 4 + 4;
+      
+      const isUp = Math.random() > 0.5;
+      if (isUp) {
+        heart.style.animation = `floatUp ${duration}s linear forwards`;
+      } else {
+        heart.style.animation = `floatDown ${duration}s linear forwards`;
+      }
+
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, duration * 1000);
+    }
+
+    setInterval(createHeart, 300);
+
+   
+    function moveNoButton() {
+      if (noClickCount < 3) return;
+
+      noWrapper.style.position = 'fixed';
+
+      const padding = 20;
+      const maxX = window.innerWidth - noWrapper.offsetWidth - padding;
+      const maxY = window.innerHeight - noWrapper.offsetHeight - padding;
+
+      const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+      const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+      noWrapper.style.left = `${randomX}px`;
+      noWrapper.style.top = `${randomY}px`;
+    }
+
+    
+    function resetNoButton() {
+      noClickCount = 0;
+      noHint.textContent = '';
+      noHint.classList.remove('show');
+      noWrapper.style.position = 'relative';
+      noWrapper.style.left = 'auto';
+      noWrapper.style.top = 'auto';
+    }
+
+    
+    noBtn.addEventListener('click', (e) => {
+      noClickCount++;
+
+      if (noClickCount === 1) {
+        noHint.textContent = 'Может все-таки да?';
+        noHint.classList.add('show');
+      } else if (noClickCount === 2) {
+        noHint.textContent = 'Ну может все таки лучше да?';
+      } else if (noClickCount === 3) {
+        noHint.textContent = 'Ну я побежал!';
+        setTimeout(moveNoButton, 150);
+      }
+    });
+
+    
+    noBtn.addEventListener('mouseover', moveNoButton);
+    noBtn.addEventListener('touchstart', (e) => {
+      if (noClickCount >= 3) {
+        e.preventDefault();
+        moveNoButton();
+      } else {
+        
+        noBtn.click();
+      }
+    });
+
+    
+    yesBtn.addEventListener('click', () => {
+      if (stage === 1) {
+        stage = 2;
+        questionEl.textContent = 'Ты скинешь мне нюдсы?';
+        resetNoButton();
+      } else if (stage === 2) {
+        questionEl.className = 'final-message';
+        questionEl.innerHTML = 'Ваааай я тоже тебя люблю, и тоже скину &lt;3';
+        buttonArea.style.display = 'none';
+        setInterval(createHeart, 100);
+      }
+    });
+  </script>
+
+</body>
+</html>
